@@ -1,0 +1,95 @@
+---
+- include_vars: jail.yml
+
+- debug: var=jail
+
+- name: create jail
+  iocage: 
+    tag: '{{ jail.tag }}'
+    properties:
+      ip4_addr: '{{ jail.ip4 | default("none") }}'
+      ip6_addr: '{{ jail.ip6 | default("none") }}'
+      boot: '{{ jail.boot | default("on") }}'
+      host_hostname: '{{ jail.hostname }}'
+      resolver: '{{ jail.resolver }}'
+    state: present
+  register: iocage_jail
+
+- name: mkdir .ssh
+  file:
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/root/root/.ssh'
+    mode: '0700'
+    state: directory
+  when: iocage_jail.changed
+  
+- name: set sshd root
+  copy:
+    remote_src: True
+    src: /root/.ssh/authorized_keys
+    directory_mode: '0700'
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/root/root/.ssh/authorized_keys'
+  when: iocage_jail.changed == True
+
+- name: restore ssh host keys
+  copy:
+    src: '{{ sshkey }}'
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/root/etc/ssh/{{ sshkey | regex_replace(".*/","") }}'
+    mode: '0600'
+  with_fileglob:
+    - '{{ playbook_dir }}/files/ssh/{{ inventory_hostname }}/ssh_host*_key'
+  loop_control:
+    loop_var: sshkey
+  when: iocage_jail.changed == True
+
+- name: initial permit root login
+  lineinfile:
+    line: 'PermitRootLogin without-password'
+    regexp: '^PermitRootLogin'
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/root/etc/ssh/sshd_config'
+  when: iocage_jail.changed == True
+
+- name: enable sshd
+  lineinfile:
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/root/etc/rc.conf'
+    line: 'sshd_enable="YES"'
+  notify: restart jail
+  when: iocage_jail.changed == True
+
+- name: copy fstab
+  template:
+    src: '{{ jail.fstab }}'
+    dest: '/iocage/jails/{{ iocage_jail.uuid }}/fstab'
+  when: iocage_jail.changed == True and jail.fstab != ""
+  register: jail_fstab
+
+- name: get fstab mountpoints
+  shell: "awk '{print $2}' /iocage/jails/{{ iocage_jail.uuid }}/fstab"
+  register: mntdirs
+  changed_when: False
+  failed_when: False
+  when: jail_fstab.changed == True
+
+- name: mkdir fstab mountpoints
+  file:
+    state: directory
+    dest: '{{ dir }}'
+  when: jail_fstab.changed == True
+  with_items: '{{ mntdirs.stdout_lines | default([]) }}'
+  loop_control:
+    loop_var: dir
+  notify: restart jail
+
+- name: start jail
+  iocage:
+    tag: '{{ jail.tag }}'
+    state: started
+
+- name: check for pkg
+  stat:
+    path: '/iocage/jails/{{ iocage_jail.uuid }}/root/usr/local/sbin/pkg'
+  register: pkg_installed
+
+- name: install python
+  shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.uuid }}/root install -y pkg python rsync'
+  when: not pkg_installed.stat.exists and 'template' not in iocage_jail
+

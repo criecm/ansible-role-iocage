@@ -1,0 +1,36 @@
+# {{ ansible managed }}
+ext_if="{{ host_net_ext_if }}"
+ext_ip="{{ host_net_ext_ip }}"
+icmp_types="{ 0, 3, 4, 8, 11 }"
+
+sshd_port={{ host_sshd_port }}
+
+set block-policy return
+scrub in all
+
+pass
+
+###########
+# NAT rules
+
+nat-anchor nat-jail
+load anchor nat-jail from "/etc/pf.anchor.nat-jail.conf"
+
+###########
+# RDR rules
+
+rdr-anchor rdr-jail
+load anchor rdr-jail from "/etc/pf.anchor.rdr-jail.conf"
+
+#######
+# rules
+
+pass inet proto icmp all icmp-type $icmp_types queue icmp label "ICMP"
+
+pass quick log proto tcp from any to $ext_ip port $sshd_port keep state
+pass quick log proto tcp from 127.0.0.1 to 127.0.0.1 port $sshd_port keep state
+
+pass out on quick $ext_if from ($ext_if:0)
+
+anchor rls-jail
+load anchor rls-jail from "/etc/pf.anchor.rules-jail.conf"

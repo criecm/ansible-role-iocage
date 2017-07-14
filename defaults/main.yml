@@ -1,0 +1,4 @@
+---
+jail_list: []
+iocage_zpool: zroot
+fetch_args: '-F base.txz -s ftp.ec-m.fr -h'
