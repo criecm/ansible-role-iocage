@@ -27,7 +27,7 @@
 - name: initialize iocage
   iocage:
     state: fetched
-    args: '{{ fetch_args }}'
+    args: '{{ iocage_fetch_args }}'
     release: '{{ releasecmd.stdout }}'
   tags: iocage, hostinit
 
@@ -67,7 +67,7 @@
 
 #- name: create basejail
 #  iocage:
-#    tag: "basejail"
+#    name: "basejail"
 #    release: '{{ releasecmd.stdout }}'
 #    state: basejail
 #  tags: iocage, hostinit

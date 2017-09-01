@@ -14,7 +14,7 @@ jail_resolver: '{{ jail_resolvers }}{{ jail_search_domains | default(jail_domain
 jail_defaults:
   ip6: 'none'
   ip4: 'none'
-  tag: ''
+  name: ''
   hostname: ''
   fstab: ''
   template: 'no'

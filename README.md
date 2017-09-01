@@ -15,8 +15,8 @@ FreeBSD host system
 
 * `iocage_zpool` (zroot): ZFS pool for iocage
 
-* `fetch_properties` ({}): properties to be passed to `iocage fetch`
-  example: { ftpfiles="base.txz", ftphost="my.own.freebsd.mirror" }
+* `iocage_fetch_args` ({}): arguments to be passed to `iocage fetch`
+  example: "-s ftp.local -d pub/FreeBSD/releases"
 
 * `jail_list` ([]): list of jails dicts to be created on host, see below
 
@@ -24,7 +24,7 @@ FreeBSD host system
 
 (in vars/jail.yml)
 
-* `tag` (no default, mandatory): human identifier, unique on host
+* `name` (no default, mandatory): human identifier, unique on host
 
 * `hostname` (''): generated UUID if empty
 
@@ -68,7 +68,7 @@ resolvers:
     - iocage
   vars:
     jail_list:
-      - { tag: myjail, hostname: myjail.example.org, ip4: 'bge0|198.51.100.0' }
+      - { name: myjail, hostname: myjail.example.org, ip4: 'bge0|198.51.100.0' }
 ```
 
 ## ansible-iocage module
