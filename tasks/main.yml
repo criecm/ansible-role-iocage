@@ -5,11 +5,19 @@
     state: present
   tags: iocage,hostinit,pkg
 
+- name: mount fdescfs
+  mount:
+    fstype: fdescfs
+    path: /dev/fd
+    src: fdesc
+    state: mounted
+  tags: iocage,hostinit
+
 - command: zfs list -H -o name /iocage
   register: zfs_list_iocage
   failed_when: False
   changed_when: False
-  tags: iocage, hostinit
+  tags: iocage,hostinit
   check_mode: False
   
 - name: mark zpool for iocage
