@@ -21,7 +21,7 @@
   check_mode: False
   
 - name: mark zpool for iocage
-  command: '/usr/local/sbin/iocage activate {{ iocage_zpool }}'
+  command: '/usr/local/bin/iocage activate {{ iocage_zpool }}'
   when: 'zfs_list_iocage.stdout_lines | length == 0'
   tags: iocage, hostinit
 
