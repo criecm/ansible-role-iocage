@@ -30,7 +30,7 @@
     src: /root/.ssh/authorized_keys
     directory_mode: '0700'
     dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh/authorized_keys'
-  when: 'iocage_jail.changed == True and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+  when: 'iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates'
 
 - name: restore ssh host keys
   copy:
