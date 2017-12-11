@@ -81,7 +81,7 @@
 #  tags: iocage, hostinit
 #  when: 'jail_list | count() > 0'
 
-- include: jail.yml
+- include_tasks: jail.yml
   with_items: '{{ jail_list }}'
   loop_control:
     loop_var: onejail
