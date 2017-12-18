@@ -6,12 +6,7 @@
 - name: create jail
   iocage: 
     name: '{{ jail.name }}'
-    properties:
-      ip4_addr: '{{ jail.ip4 | default("none") }}'
-      ip6_addr: '{{ jail.ip6 | default("none") }}'
-      boot: '{{ jail.boot | default("on") }}'
-      host_hostname: '{{ jail.hostname }}'
-      resolver: '{{ jail.resolver }}'
+    properties: '{{ jail.properties }}'
     state: present
   register: iocage_jail
 
@@ -38,7 +33,7 @@
     dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/ssh/{{ sshkey | regex_replace(".*/","") }}'
     mode: '0600'
   with_fileglob:
-    - '{{ playbook_dir }}/files/ssh/{{ inventory_hostname }}/ssh_host*_key'
+    - '{{ playbook_dir }}/files/ssh/{{ iocage.name }}/ssh_host*_key'
   loop_control:
     loop_var: sshkey
   when: 'iocage_jail.changed == True and jail.name not in iocage_jail.ansible_facts.iocage_templates'
@@ -92,7 +87,12 @@
     path: '/iocage/jails/{{ iocage_jail.name }}/root/usr/local/sbin/pkg'
   register: pkg_installed
 
-- name: install python
+- name: install python in jail
   shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python rsync'
   when: 'not pkg_installed.stat.exists and jail.name not in iocage_jail.ansible_facts.iocage_templates'
 
+- name: add jail to inventory
+  add_host:
+    name: '{{ jail.name }}'
+    hostname: '{{ jail.hostname }}'
+    groups: newjail

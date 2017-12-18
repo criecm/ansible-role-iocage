@@ -37,6 +37,9 @@ FreeBSD host system
 * `resolver` ('auto'): resolv.conf's content for the jail, with ';' instead of newlines
   (iocage will copy the host's one at jail boot if empty)
 
+* `properties` ({}):
+   Dict for any iocage jail properties available
+
 ### resolver=auto logic
 
 `resolver` will be auto-populated according to variables `search_domains` and `resolvers`
@@ -68,7 +71,7 @@ resolvers:
     - iocage
   vars:
     jail_list:
-      - { name: myjail, hostname: myjail.example.org, ip4: 'bge0|198.51.100.0' }
+      - { name: myjail, hostname: myjail.example.org, ip4_addr: 'bge0|198.51.100.0' }
 ```
 
 ## ansible-iocage module
