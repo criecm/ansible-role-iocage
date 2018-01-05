@@ -17,7 +17,6 @@ jailprops:
   boot: '{% if "boot" in onejail %}{{ onejail.boot }}{% else %}on{% endif %}'
   host_hostname: '{{ onejail.hostname }}'
   resolver: '{% if "resolver" in onejail and onejail.resolver == "auto" %}{{ jail_resolver }}{% endif %}'
-  fstab: '{% if "fstab" in onejail %}{{ onejail.fstab }}{% endif %}'
   template: 'no'
 
 jproperties:
