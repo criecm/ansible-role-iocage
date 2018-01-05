@@ -30,7 +30,13 @@
   register: releasecmd
   changed_when: False
   check_mode: False
-  tags: iocage
+  tags: iocage, hostinit
+
+- name: get release state
+  stat:
+    path: '/iocage/releases/{{ releasecmd.stdout }}/root/bin/freebsd-version'
+  register: relfile
+  tags: iocage, hostinit
 
 - name: initialize iocage
   iocage:
@@ -38,6 +44,7 @@
     args: '{{ iocage_fetch_args }}'
     release: '{{ releasecmd.stdout }}'
   tags: iocage, hostinit
+  when: not relfile.stat.exists
 
 - name: Enable iocage service
   service:
