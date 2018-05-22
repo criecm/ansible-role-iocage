@@ -43,6 +43,8 @@
     state: fetched
     args: '{{ iocage_fetch_args }}'
     release: '{{ releasecmd.stdout }}'
+  register: ioc_fetch
+  failed_when: '"successfully" not in ioc_fetch.stdout_lines or "ready" not in ioc_fetch.stdout_lines'
   tags: iocage, hostinit
   when: not relfile.stat.exists
 
