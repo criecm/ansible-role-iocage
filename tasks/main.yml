@@ -91,8 +91,16 @@
 #  when: 'jail_list | count() > 0'
 
 - include_tasks: jail.yml
+  with_items: '{{ jail_list | selectattr("name","equalto",myjail) | list }}'
+  loop_control:
+    loop_var: onejail
+  tags: iocage, jails
+  when: myjail != ""
+
+- include_tasks: jail.yml
   with_items: '{{ jail_list }}'
   loop_control:
     loop_var: onejail
   tags: iocage, jails
+  when: myjail == "" and jail_list | count() > 0
 

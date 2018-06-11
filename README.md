@@ -16,12 +16,18 @@ FreeBSD host system
 
 (in defaults/main.yml)
 
-* `iocage_zpool` (zroot): ZFS pool for iocage
+* `iocage_zpool (zroot)`:
+   ZFS pool for iocage
 
-* `iocage_fetch_args` ({}): arguments to be passed to `iocage fetch`
-  example: "-s ftp.local -d pub/FreeBSD/releases"
+* `iocage_fetch_args ({}):`
+   arguments to be passed to `iocage fetch`
+   example: "-s ftp.local -d pub/FreeBSD/releases"
 
-* `jail_list` ([]): list of jails dicts to be created on host, see below
+* `jail_list ([])`:
+   list of jails dicts to be created on host, see below
+
+* `myjail ('')`
+   if defined, run only this jail from `jail_list`
 
 ### per-jail variables
 

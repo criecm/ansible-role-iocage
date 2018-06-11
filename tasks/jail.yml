@@ -96,3 +96,22 @@
     hostname: '{{ jail.hostname }}'
     groups: [ iojails ]
     iocage_host: '{{ inventory_hostname }}'
+  when: 'jail.name not in hostvars'
+  changed_when: False
+
+- name: add host fact to jail
+  set_fact:
+    iojail:
+      host: '{{ inventory_hostname }}'
+    cacheable: yes
+  delegate_to: '{{ jail.name }}'
+  delegate_facts: yes
+
+- file: dest='{{ etcprefix }}/etc/ansible/facts.d' state=directory
+
+- name: jail local fact
+  copy:
+    dest: '{{ etcprefix }}/etc/ansible/facts.d/iojail.fact'
+    content: |
+      [host]
+      {{ inventory_hostname }}
