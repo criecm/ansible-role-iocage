@@ -94,4 +94,5 @@
   add_host:
     name: '{{ jail.name }}'
     hostname: '{{ jail.hostname }}'
-    groups: newjail
+    groups: [ iojails ]
+    iocage_host: '{{ inventory_hostname }}'

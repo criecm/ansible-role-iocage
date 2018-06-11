@@ -5,6 +5,9 @@ iocage host install/config and jails installation
 Uses the `iocage` ansible module from https://github.com/criecm/ansible-iocage
 (embedded in the role's library/)
 
+Adds created hosts in inventory (`add_host`) with a `iocage_host` variable filled
+with host's `inventory_hostname` and an `iojails` group
+
 ## Requirements
 
 FreeBSD host system
