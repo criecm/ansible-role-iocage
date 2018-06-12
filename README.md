@@ -10,7 +10,7 @@ with host's `inventory_hostname` and an `iojails` group
 
 ## Requirements
 
-FreeBSD host system
+* [sshjail connection plugin](https://github.com/austinhyde/ansible-sshjail)
 
 ## Role variables
 

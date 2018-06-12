@@ -96,6 +96,9 @@
     hostname: '{{ jail.hostname }}'
     groups: [ iojails ]
     iocage_host: '{{ inventory_hostname }}'
+    ansible_ssh_host: '{{ jail.name }}@{{ inventory_hostname }}'
+    ansible_connection: sshjail
+    ansible_python_interpreter: '{{ ansible_python_interpreter }}'
   when: 'jail.name not in hostvars'
   changed_when: False
 
@@ -108,6 +111,7 @@
   delegate_facts: yes
 
 - file: dest='{{ etcprefix }}/etc/ansible/facts.d' state=directory
+  delegate_to: '{{ jail.name }}'
 
 - name: jail local fact
   copy:
@@ -115,3 +119,4 @@
     content: |
       [host]
       {{ inventory_hostname }}
+  delegate_to: '{{ jail.name }}'
