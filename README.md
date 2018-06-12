@@ -72,15 +72,34 @@ resolvers:
   - { network: '::/0', ip: 2620:0:ccc::2 }
 ```
 
-## example playbook for host and one jail:
+## example playbooks:
+
+### A jailhost with two jails:
 
 ```
 - hosts: realmachine
   roles:
-    - iocage
+    - criecm.iocage
   vars:
     jail_list:
-      - { name: myjail, hostname: myjail.example.org, ip4_addr: 'bge0|198.51.100.0' }
+      - { name: myfirstjail, hostname: myfirstjail.example.org, ip4_addr: 'bge0|198.51.100.0' }
+      - { name: mysecjail, hostname: mysecjail.example.org, ip4_addr: 'bge0|198.51.100.8' }
+```
+
+### a playbook snippet to create/register the jail before working on it
+
+```
+- hosts: realmachine
+  roles:
+    - criecm.iocage
+  vars:
+    # here jail_list can be in the inventory/host_vars/realmachine.yml
+    myjail: myfirstjail
+
+- hosts: myfirstjail
+  roles:
+    - criecm.apache
+  […]
 ```
 
 ## ansible-iocage module
