@@ -95,5 +95,5 @@
   loop_control:
     loop_var: onejail
   tags: iocage, jails
-  when: (myjail == "" and jail_list | count() > 0) or (myjail == onejail.id)
+  when: (myjail == "" and jail_list | count() > 0) or (myjail == onejail.name)
 
