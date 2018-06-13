@@ -108,7 +108,6 @@
       host: '{{ inventory_hostname }}'
     cacheable: yes
   delegate_to: '{{ jail.name }}'
-  delegate_facts: yes
 
 - file: dest='{{ etcprefix }}/etc/ansible/facts.d' state=directory
   delegate_to: '{{ jail.name }}'
