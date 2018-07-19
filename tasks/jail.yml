@@ -102,6 +102,13 @@
   when: 'jail.name not in hostvars'
   changed_when: False
 
+- name: add jail fact to host
+  blockinfile:
+    path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact }}'
+    marker: "# {mark} ANSIBLE BLOCK jail {{ jail.name }}"
+    block: '{{ jail }}'
+    create: yes
+
 - name: add host fact to jail
   set_fact:
     iojail:
@@ -109,7 +116,9 @@
     cacheable: yes
   delegate_to: '{{ jail.name }}'
 
-- file: dest='{{ etcprefix }}/etc/ansible/facts.d' state=directory
+- file:
+    path: '{{ etcprefix }}/etc/ansible/facts.d'
+    state: directory
   delegate_to: '{{ jail.name }}'
 
 - name: jail local fact
