@@ -5,7 +5,7 @@ galaxy_info:
 
   license: BSD
 
-  min_ansible_version: 2.4
+  min_ansible_version: 2.5
 
   # If this a Container Enabled role, provide the minimum Ansible Container version.
   # min_ansible_container_version:
@@ -14,7 +14,8 @@ galaxy_info:
     - name: FreeBSD
       versions:
         - 11.1
-        - 10.3
+        - 11.2
+        - 10.4
 
   galaxy_tags:
     - iocage
