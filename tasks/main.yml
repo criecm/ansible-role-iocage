@@ -1,7 +1,7 @@
 ---
 - name: get state
   set_fact:
-    ioc_installed: '{% if ansible_facts.ansible_local.iocage %}True{% else %}False{% endif %}'
+    ioc_installed: '{% if ansible_facts.ansible_local.iocage and not do_sysadm | default(False) %}True{% else %}False{% endif %}'
   tags: iocage,vars
 
 - name: iocage pkg
