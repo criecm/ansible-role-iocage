@@ -1,7 +1,7 @@
 ---
 - name: get state
   set_fact:
-    ioc_installed: '{% if ansible_facts.ansible_local.iocage and not do_sysadm | default(False) %}True{% else %}False{% endif %}'
+    ioc_installed: '{% if "iocage" in ansible_facts.ansible_local and not do_sysadm | default(False) %}True{% else %}False{% endif %}'
   tags: iocage,vars
 
 - name: iocage pkg
@@ -29,9 +29,8 @@
   
 - name: mark zpool for iocage
   command: '/usr/local/bin/iocage activate {{ iocage_zpool }}'
-  when: 'zfs_list_iocage.stdout_lines | length == 0'
+  when: zfs_list_iocage.stdout_lines | length == 0 and not ioc_installed
   tags: iocage, hostinit
-  when: not ioc_installed
 
 - name: get release
   shell: "uname -r | sed 's/-p[0-9]*//'"
@@ -53,8 +52,8 @@
     state: fetched
     args: '{{ iocage_fetch_args }}'
     release: '{{ releasecmd.stdout }}'
+    components: '{{ iocage_components | default(omit) }}'
   register: ioc_fetch
-  failed_when: '"successfully" not in ioc_fetch.stdout_lines or "ready" not in ioc_fetch.stdout_lines'
   tags: iocage, hostinit
   when: not ioc_installed and not relfile.stat.exists
 
@@ -118,7 +117,7 @@
 
 - name: local fact
   copy:
-    path: '{{ etcprefix }}/etc/ansible/facts.d/iocage.fact'
+    dest: '{{ etcprefix }}/etc/ansible/facts.d/iocage.fact'
     src: iocage_local.fact
     mode: '0755'
   when: not ioc_installed

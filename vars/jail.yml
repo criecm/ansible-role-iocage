@@ -8,7 +8,7 @@ jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.
 
 jail_search_domains: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips.split(" ") | ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
 
-jail_resolver: 'domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) }}'
+jail_resolver: '{% if onejail.resolver | default(False) %}{{ onejail.resolver }}{% else %}domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) }}{% endif %}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'
 
 jailprops:
