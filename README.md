@@ -23,11 +23,14 @@ with host's `inventory_hostname` and an `iojails` group
    arguments to be passed to `iocage fetch`
    example: "-s ftp.local -d pub/FreeBSD/releases"
 
-* `jail_list ([])`:
+* `jail_list ([])`
    list of jails dicts to be created on host, see below
 
 * `myjail ('')`
    if defined, run only this jail from `jail_list`
+
+*  `iocage_components (none)` - comma-separated list
+   if defined, only install these components (eg: 'base.txz,doc.txz')
 
 ### per-jail variables
 
