@@ -96,11 +96,18 @@
     hostname: '{{ jail.hostname }}'
     groups: [ iojails ]
     iocage_host: '{{ inventory_hostname }}'
-    ansible_ssh_host: '{{ jail.name }}@{{ inventory_hostname }}'
+    ansible_ssh_host: 'ioc-{{ jail.name }}@{{ inventory_hostname }}'
     ansible_connection: sshjail
     ansible_python_interpreter: '{{ ansible_python_interpreter }}'
   when: 'jail.name not in hostvars'
   changed_when: False
+
+- name: add jail fact to host
+  blockinfile:
+    path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact }}'
+    marker: "# {mark} ANSIBLE BLOCK jail {{ jail.name }}"
+    block: '{{ jail }}'
+    create: yes
 
 - name: add host fact to jail
   set_fact:
@@ -108,9 +115,10 @@
       host: '{{ inventory_hostname }}'
     cacheable: yes
   delegate_to: '{{ jail.name }}'
-  delegate_facts: yes
 
-- file: dest='{{ etcprefix }}/etc/ansible/facts.d' state=directory
+- file:
+    path: '{{ etcprefix }}/etc/ansible/facts.d'
+    state: directory
   delegate_to: '{{ jail.name }}'
 
 - name: jail local fact

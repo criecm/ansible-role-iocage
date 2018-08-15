@@ -1,9 +1,15 @@
 ---
+- name: get state
+  set_fact:
+    ioc_installed: '{% if ansible_facts.ansible_local.iocage and not do_sysadm | default(False) %}True{% else %}False{% endif %}'
+  tags: iocage,vars
+
 - name: iocage pkg
   pkgng:
     name: py36-iocage
     state: present
   tags: iocage,hostinit,pkg
+  when: not ioc_installed
 
 - name: mount fdescfs
   mount:
@@ -12,6 +18,7 @@
     src: fdesc
     state: mounted
   tags: iocage,hostinit
+  when: not ioc_installed
 
 - command: zfs list -H -o name /iocage
   register: zfs_list_iocage
@@ -24,6 +31,7 @@
   command: '/usr/local/bin/iocage activate {{ iocage_zpool }}'
   when: 'zfs_list_iocage.stdout_lines | length == 0'
   tags: iocage, hostinit
+  when: not ioc_installed
 
 - name: get release
   shell: "uname -r | sed 's/-p[0-9]*//'"
@@ -31,12 +39,14 @@
   changed_when: False
   check_mode: False
   tags: iocage, hostinit
+  when: not ioc_installed
 
 - name: get release state
   stat:
     path: '/iocage/releases/{{ releasecmd.stdout }}/root/bin/freebsd-version'
   register: relfile
   tags: iocage, hostinit
+  when: not ioc_installed
 
 - name: initialize iocage
   iocage:
@@ -46,13 +56,14 @@
   register: ioc_fetch
   failed_when: '"successfully" not in ioc_fetch.stdout_lines or "ready" not in ioc_fetch.stdout_lines'
   tags: iocage, hostinit
-  when: not relfile.stat.exists
+  when: not ioc_installed and not relfile.stat.exists
 
 - name: Enable iocage service
   service:
     name: iocage
     enabled: True
   tags: iocage, hostinit
+  when: not ioc_installed
 
 - name: load accf_http and accf_data
   lineinfile:
@@ -62,11 +73,13 @@
     - 'accf_http_load="YES"'
     - 'accf_data_load="YES"'
   tags: iocage, hostinit
+  when: not ioc_installed
 - name: enable racct/rctl
   lineinfile:
     dest: /boot/loader.conf
     line: 'kern.racct.enable=1'
   tags: iocage, hostinit
+  when: not ioc_installed
 
 #- name: get iocage current jails
 #  shell: "/usr/local/sbin/iocage list |grep '^[0-9]' | awk '{print $5}'"
@@ -81,6 +94,7 @@
     src: pkglist.json
     dest: /iocage/pkglist.json
   tags: iocage, newjails
+  when: not ioc_installed
 
 #- name: create basejail
 #  iocage:
@@ -89,6 +103,25 @@
 #    state: basejail
 #  tags: iocage, hostinit
 #  when: 'jail_list | count() > 0'
+
+- file:
+    path: '{{ etcprefix }}/etc/ansible/facts.d'
+    state: directory
+- file:
+    path: '{{ etcprefix }}/etc/ansible-{{ item }}'
+    src: '{{ etcprefix }}/etc/ansible'
+    state: link
+  with_items:
+    - 27
+    - 36
+  when: not ioc_installed
+
+- name: local fact
+  copy:
+    path: '{{ etcprefix }}/etc/ansible/facts.d/iocage.fact'
+    src: iocage_local.fact
+    mode: '0755'
+  when: not ioc_installed
 
 - include_tasks: jail.yml
   with_items: '{{ jail_list }}'
