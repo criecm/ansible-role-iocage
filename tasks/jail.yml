@@ -104,7 +104,7 @@
 
 - name: add jail fact to host
   blockinfile:
-    path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact }}'
+    path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact'
     marker: "# {mark} ANSIBLE BLOCK jail {{ jail.name }}"
     block: '{{ jail }}'
     create: yes
