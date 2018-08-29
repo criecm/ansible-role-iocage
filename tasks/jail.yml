@@ -125,6 +125,5 @@
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iojail.fact'
     content: |
-      [host]
-      {{ inventory_hostname }}
+      {"host":"{{ inventory_hostname }}"}
   delegate_to: '{{ jail.name }}'
