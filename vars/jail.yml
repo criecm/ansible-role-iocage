@@ -8,7 +8,7 @@ jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.
 
 jail_search_domains: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips.split(" ") | ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
 
-jail_resolver: '{% if onejail.resolver | default(False) %}{{ onejail.resolver }}{% else %}domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) }}{% endif %}'
+jail_resolver: 'domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) }}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'
 
 jailprops:
@@ -16,7 +16,7 @@ jailprops:
   ip6_addr: '{% if "ip6" in onejail %}{{ onejail.ip6 }}{% else %}none{% endif %}'
   boot: '{% if "boot" in onejail %}{{ onejail.boot }}{% else %}on{% endif %}'
   host_hostname: '{{ onejail.hostname }}'
-  resolver: '{% if "resolver" in onejail and onejail.resolver == "auto" %}{{ jail_resolver }}{% endif %}'
+  resolver: '{% if "resolver" in onejail and onejail.resolver != "auto" and onejail_resolver != "" %}{{ onejail.resolver }}{% else %}{{ jail_resolver }}{% endif %}'
   template: 'no'
 
 jproperties:
