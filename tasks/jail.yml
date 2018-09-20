@@ -87,7 +87,7 @@
   register: pkg_installed
 
 - name: install python in jail
-  shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python rsync'
+  shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python python2 python3 rsync'
   when: 'not pkg_installed.stat.exists and jail.name not in iocage_jail.ansible_facts.iocage_templates'
 
 - name: add jail to inventory
@@ -106,7 +106,7 @@
   blockinfile:
     path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact'
     marker: "# {mark} ANSIBLE BLOCK jail {{ jail.name }}"
-    block: '{{ jail }}'
+    block: '{{ jail | to_yaml }}'
     create: yes
 
 - name: add host fact to jail
