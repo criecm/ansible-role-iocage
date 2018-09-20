@@ -16,7 +16,7 @@ jailprops:
   ip6_addr: '{% if "ip6" in onejail %}{{ onejail.ip6 }}{% else %}none{% endif %}'
   boot: '{% if "boot" in onejail %}{{ onejail.boot }}{% else %}on{% endif %}'
   host_hostname: '{{ onejail.hostname }}'
-  resolver: '{% if "resolver" in onejail and onejail.resolver != "auto" and onejail_resolver != "" %}{{ onejail.resolver }}{% else %}{{ jail_resolver }}{% endif %}'
+  resolver: '{% if "resolver" in onejail and onejail.resolver != "auto" and onejail.resolver != "" %}{{ onejail.resolver }}{% else %}{{ jail_resolver }}{% endif %}'
   template: 'no'
 
 jproperties:
