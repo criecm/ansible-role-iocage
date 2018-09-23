@@ -123,3 +123,4 @@
     content: |
       {"host":"{{ inventory_hostname }}"}
   delegate_to: '{{ jail.name }}'
+  when: iocage_jail.changed
