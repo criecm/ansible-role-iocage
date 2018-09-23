@@ -49,7 +49,7 @@
     line: '{{ item }}'
   with_items:
     - 'sshd_enable="YES"'
-    - {% "properties" in jail and "jail_zfs" in jail.properties and jail.properties.jail_zfs %}'zfs_enable="YES"'{% endif %}
+    - '{% if "properties" in jail and "jail_zfs" in jail.properties and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
   notify: restart jail
   when: 'jail.name not in iocage_jail.ansible_facts.iocage_templates'
 
@@ -104,13 +104,6 @@
     ansible_python_interpreter: '{{ ansible_python_interpreter }}'
   when: 'jail.name not in hostvars'
   changed_when: False
-
-- name: add jail fact to host
-  blockinfile:
-    path: '{{ etcprefix }}/etc/ansible/facts.d/jails.fact'
-    marker: "# {mark} ANSIBLE BLOCK jail {{ jail.name }}"
-    block: '{{ jail | to_yaml }}'
-    create: yes
 
 - name: add host fact to jail
   set_fact:
