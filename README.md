@@ -35,6 +35,9 @@ with host's `inventory_hostname` and an `iojails` group
 *  `iocage_enable_ssh (True)`
    Enable ssh in new jails
 
+* `iocage_release (uname -r)`
+  The release you need
+
 ### per-jail variables
 
 (in vars/jail.yml)
