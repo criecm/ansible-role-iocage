@@ -32,6 +32,9 @@ with host's `inventory_hostname` and an `iojails` group
 *  `iocage_components (none)` - comma-separated list
    if defined, only install these components (eg: 'base.txz,doc.txz')
 
+*  `iocage_enable_ssh (True)`
+   Enable ssh in new jails
+
 ### per-jail variables
 
 (in vars/jail.yml)
@@ -51,6 +54,9 @@ with host's `inventory_hostname` and an `iojails` group
 
 * `properties` ({}):
    Dict for any iocage jail properties available
+
+* `authkeys (/root/.ssh/authorized_keys)`
+  File to copy as /root/.ssh/authorized_keys in jail
 
 ### resolver=auto logic
 
