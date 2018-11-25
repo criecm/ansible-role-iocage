@@ -43,7 +43,9 @@
 - name: set release fact
   set_fact:
     iocage_release: '{{ releasecmd.stdout }}'
-  when: not iocage_release
+  check_mode: False
+  tags: iocage, hostinit
+  when: '"stdout" in releasecmd and not iocage_release'
 
 - name: get release state
   stat:
