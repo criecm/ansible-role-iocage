@@ -9,7 +9,7 @@
     name: py36-iocage
     state: present
   tags: iocage,hostinit,pkg
-  when: not ioc_installed
+  when: upgrade | default(False) or not ioc_installed
 
 - name: mount fdescfs
   mount:
