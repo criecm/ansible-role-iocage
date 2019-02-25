@@ -1,5 +1,8 @@
 #!/bin/sh
-echo -n '{"jails": {'
+zpool=$(/sbin/zfs list -H -o name /iocage | sed 's@/.*$@@')
+echo -n '{'
+echo -n '"zpool": "'$zpool'",'
+echo -n '"jails": {'
 sep=''
 /usr/local/bin/iocage list -H | awk '/up/{print $2}' | while read j; do
   echo -n "$sep\"$j\":"

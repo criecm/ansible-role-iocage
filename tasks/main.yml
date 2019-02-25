@@ -2,6 +2,7 @@
 - name: get state
   set_fact:
     ioc_installed: '{% if "iocage" in ansible_facts.ansible_local and not do_sysadm | default(False) %}True{% else %}False{% endif %}'
+    ioc_zpool: '{% if "iocage" in ansible_facts.ansible_local and "zpool" in ansible_facts.ansible_local.iocage %}{{ ansible_facts.ansible_local.iocage.zpool }}{% else %}{{ iocage_zpool }}{% endif %}'
   tags: iocage,vars
 
 - name: iocage pkg
@@ -27,8 +28,17 @@
   tags: iocage,hostinit
   check_mode: False
   
+- name: iocage zfs {{ ioc_zpool }}/iocage
+  zfs:
+    name: '{{ ioc_zpool }}/iocage'
+    extra_zfs_properties:
+      mountpoint: /iocage
+      compression: 'on'
+    state: present
+  when: not ioc_installed
+
 - name: mark zpool for iocage
-  command: '/usr/local/bin/iocage activate {{ iocage_zpool }}'
+  command: '/usr/local/bin/iocage activate {{ ioc_zpool }}'
   when: zfs_list_iocage.stdout_lines | length == 0 and not ioc_installed
   tags: iocage, hostinit
 
@@ -61,6 +71,7 @@
     release: '{{ iocage_release }}'
     components: '{{ iocage_components | default(omit) }}'
   register: ioc_fetch
+  failed_when: ioc_fetch.rc != 0 and "success" not in ioc_fetch.stdout
   tags: iocage, hostinit
   when: not ioc_installed and not relfile.stat.exists
 
