@@ -2,7 +2,7 @@
 jail_ip6s: '{{ onejail.ip6 | default("") | regex_replace(",?([^\|]+\|)"," ") }}'
 jail_ips: '{{ jail_ip6s }}{{ onejail.ip4 | default("") | regex_replace(",?([a-z0-9\.]+\|)"," ") }}'
 
-jail_resolvers: '{% for ns in resolvers if not ns.network == "0.0.0.0/0" %}{% for i in jail_ips.split(" ") %}{% if i | ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}'
+jail_resolvers: '{% for ns in resolvers %}{% for i in jail_ips.split(" ") %}{% if i | ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}'
 
 jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.]+\.","") }}'
 

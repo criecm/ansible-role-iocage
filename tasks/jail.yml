@@ -107,20 +107,20 @@
   when: jail.name not in hostvars
   changed_when: False
 
-- name: add host fact to jail
+- name: 'add host fact to jail {{ jail.name }}'
   set_fact:
     iojail:
       host: '{{ inventory_hostname }}'
     cacheable: yes
   delegate_to: '{{ jail.name }}'
 
-- name: jail facts dir
+- name: 'jail facts dir on {{ jail.name }}'
   file:
     path: '{{ etcprefix }}/etc/ansible/facts.d'
     state: directory
   delegate_to: '{{ jail.name }}'
 
-- name: jail local fact
+- name: 'jail local fact on {{ jail.name }}'
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iojail.fact'
     content: |
