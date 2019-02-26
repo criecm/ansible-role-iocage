@@ -16,7 +16,7 @@
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh'
         mode: '0700'
         state: directory
-      when: 'iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
 
     - name: set sshd root
       copy:
@@ -24,7 +24,7 @@
         src: '{{ iocage_jail.authkeys | default("/root/.ssh/authorized_keys") }}'
         directory_mode: '0700'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh/authorized_keys'
-      when: 'iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
 
     - name: restore ssh host keys
       copy:
@@ -35,14 +35,14 @@
         - '{{ playbook_dir }}/files/ssh/{{ iocage_jail.name }}/ssh_host*_key'
       loop_control:
         loop_var: sshkey
-      when: 'iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
 
     - name: initial permit root login
       lineinfile:
         line: 'PermitRootLogin without-password'
         regexp: '^PermitRootLogin'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/ssh/sshd_config'
-      when: 'iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
 
     - name: enable sshd (and zfs)
       lineinfile:
@@ -52,7 +52,7 @@
         - 'sshd_enable="YES"'
         - '{% if "properties" in jail and "jail_zfs" in jail.properties and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
       notify: restart jail
-      when: 'jail.name not in iocage_jail.ansible_facts.iocage_templates'
+      when: jail.name not in iocage_jail.ansible_facts.iocage_templates
   when: iocage_enable_ssh
 
 - name: copy fstab
@@ -93,7 +93,7 @@
 
 - name: install python in jail
   shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python python2 python3 rsync'
-  when: 'not pkg_installed.stat.exists and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+  when: not pkg_installed.stat.exists and jail.name not in iocage_jail.ansible_facts.iocage_templates
 
 - name: add jail to inventory
   add_host:
@@ -104,7 +104,7 @@
     ansible_ssh_host: 'ioc-{{ jail.name }}@{{ inventory_hostname }}'
     ansible_connection: sshjail
     ansible_python_interpreter: '{{ ansible_python_interpreter }}'
-  when: 'jail.name not in hostvars'
+  when: jail.name not in hostvars
   changed_when: False
 
 - name: add host fact to jail

@@ -239,9 +239,11 @@ def release_fetch(module, iocage_path, update=False, release="NO-RELEASE", compo
             if _component != "":
                 args += " -F {}".format(_component)
         cmd = "{0} fetch -r {1} {2}".format(iocage_path, release, args)
+        rc = 1
         rc, out, err = module.run_command(cmd)
         if not rc == 0:
-            module.fail_json(msg="Release {0} could not be fetched.\nstdout:\n{1}\nstderr:\n{2}".format(release, out, err))
+            module.fail_json(msg="Release {0} could not be fetched.\ncmd:\n{1}\nstdout:\n{2}\nstderr:\n{3}".format(release, cmd, out, err))
+
         _changed = True
         if update:
              _msg = "Release {0} was successfully updated.".format(release)
@@ -597,8 +599,8 @@ def main():
             rel, changed, _msg = release_fetch(module, iocage_path, update, release, components, args)
             msgs.append(_msg)
             facts["iocage_releases"] = _get_iocage_facts(module,iocage_path,"releases")
-#            if release not in facts["iocage_releases"] or update:
-#                module.fail_json(msg="Fetching release {} failed with {}".format(release,_msg))
+            if release not in facts["iocage_releases"] or update:
+                module.fail_json(msg="Fetching release {} failed with {}".format(release,_msg))
         else:
             msgs.append("Release {0} already fetched".format(release))
 

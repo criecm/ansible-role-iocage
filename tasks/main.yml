@@ -21,12 +21,13 @@
   tags: iocage,hostinit
   when: not ioc_installed
 
-- command: zfs list -H -o name /iocage
+- name: zfs list
+  command: zfs list -H -o name /iocage
   register: zfs_list_iocage
   failed_when: False
   changed_when: False
-  tags: iocage,hostinit
   check_mode: False
+  tags: iocage,hostinit
   
 - name: iocage zfs {{ ioc_zpool }}/iocage
   zfs:
@@ -35,7 +36,7 @@
       mountpoint: /iocage
       compression: 'on'
     state: present
-  when: not ioc_installed
+  when: not ioc_installed and zfs_list_iocage.stdout_lines | length == 0
 
 - name: mark zpool for iocage
   command: '/usr/local/bin/iocage activate {{ ioc_zpool }}'
