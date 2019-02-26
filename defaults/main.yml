@@ -6,3 +6,4 @@ myjail: ''
 etcprefix: /usr/local
 iocage_enable_ssh: True
 iocage_release: ''
+jail_init_role: ''

@@ -1,7 +1,9 @@
 ---
 - include_vars: jail.yml
 
-- debug: var=jail
+- name: show jail var
+  debug:
+    var: jail
 
 - name: create jail
   iocage: 
@@ -104,7 +106,6 @@
     ansible_ssh_host: 'ioc-{{ jail.name }}@{{ inventory_hostname }}'
     ansible_connection: sshjail
     ansible_python_interpreter: '{{ ansible_python_interpreter }}'
-  when: jail.name not in hostvars
   changed_when: False
 
 - name: 'add host fact to jail {{ jail.name }}'
@@ -113,6 +114,7 @@
       host: '{{ inventory_hostname }}'
     cacheable: yes
   delegate_to: '{{ jail.name }}'
+  delegate_facts: True
 
 - name: 'jail facts dir on {{ jail.name }}'
   file:
@@ -127,3 +129,13 @@
       {"host":"{{ inventory_hostname }}"}
   delegate_to: '{{ jail.name }}'
   when: iocage_jail.changed
+
+- name: 'import role criecm.common'
+  import_role:
+    name: criecm.common
+  vars:
+    is_jail: True
+    do_sysadm: True
+  delegate_to: '{{ jail.name }}'
+  delegate_facts: True
+  when: jail_init_role != ""
