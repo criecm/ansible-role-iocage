@@ -28,7 +28,7 @@
   changed_when: False
   check_mode: False
   tags: iocage,hostinit
-  
+
 - name: iocage zfs {{ ioc_zpool }}/iocage
   zfs:
     name: '{{ ioc_zpool }}/iocage'
@@ -122,10 +122,12 @@
 #  tags: iocage, hostinit
 #  when: 'jail_list | count() > 0'
 
-- file:
+- name: '{{ etcprefix }}/etc/ansible/facts.d'
+  file:
     path: '{{ etcprefix }}/etc/ansible/facts.d'
     state: directory
-- file:
+- name: version links
+  file:
     path: '{{ etcprefix }}/etc/ansible-{{ item }}'
     src: '{{ etcprefix }}/etc/ansible'
     state: link
