@@ -72,7 +72,6 @@
     release: '{{ iocage_release }}'
     components: '{{ iocage_components | default(omit) }}'
   register: ioc_fetch
-  failed_when: ioc_fetch.rc != 0 and "success" not in ioc_fetch.stdout
   tags: iocage, hostinit
   when: not ioc_installed and not relfile.stat.exists
 
