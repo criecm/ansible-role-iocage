@@ -1,0 +1,4 @@
+---
+criecm_iocage:
+  jails: '{% if "criecm_iocage" in ansible_local %}{{ ansible_local.criecm_iocage }}{% else %}[]{% endif %}'
+  jails2: '{{ ansible_local.criecm_iocage | default("[]") }}'

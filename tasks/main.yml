@@ -138,9 +138,14 @@
 - name: local fact
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iocage.fact'
-    src: iocage_local.fact
+    src: 'iocage_local.fact'
     mode: '0755'
   when: not ioc_installed
+
+- name: iocage_fact
+  iocage:
+    state: facts
+  register: iocage_fact
 
 - include_tasks: jail.yml
   with_items: '{{ jail_list }}'
