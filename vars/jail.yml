@@ -22,6 +22,10 @@ jailprops:
 jproperties:
   properties: '{% if "properties" in onejail %}{{ jailprops | combine( onejail.properties | default({}) ) }}{% else %}{{ jailprops }}{% endif %}'
 
+ojailprops: '{{ criecm_iocage.jails[onejail.name] | default("{}") }}'
+
+newprops: '{% for p in jproperties.properties %}{% if p in ojailprops and jproperties.properties.p is match(ojailprops.p) %}{% set np.p=jproperties.properties.p %}{% endif %}{% endfor %}{{ np | default("{}") }}'
+
 jail_defaults:
   name: ''
   hostname: ''

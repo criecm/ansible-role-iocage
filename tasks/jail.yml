@@ -10,7 +10,21 @@
     name: '{{ jail.name }}'
     properties: '{{ jail.properties }}'
     state: present
-  register: iocage_jail
+  register: iocage_create
+  when: 'not jail.name in iocage_fact.ansible_facts.iocage_jails'
+
+- name: set jail properties
+  iocage:
+    name: '{{ jail.name }}'
+    properties: '{{ jail.properties }}'
+    state: set
+  register: iocage_set
+  when: newprops | count() > 0 and not iocage_create.changed
+
+- name: iocage_jail fact
+  set_fact:
+    iocage_jail: '{% if iocage_create.changed %}{{ iocage_create.ansible_facts.iocage_jails[jail.name] }}{% elif iocage_set.changed %}{{ iocage_set.ansible_facts.iocage_jails[jail.name] }}{% else %}{{ iocage_fact.ansible_facts.iocage_jails[jail.name] }}{% endif %}'
+    jail_changed: '{% if iocage_create.changed or iocage_set.changed %}True{% else %}False{% endif %}'
 
 - block:
     - name: mkdir .ssh
@@ -18,7 +32,7 @@
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh'
         mode: '0700'
         state: directory
-      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
+      when: jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
     - name: set sshd root
       copy:
@@ -26,7 +40,7 @@
         src: '{{ iocage_jail.authkeys | default("/root/.ssh/authorized_keys") }}'
         directory_mode: '0700'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh/authorized_keys'
-      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
+      when: jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
     - name: restore ssh host keys
       copy:
@@ -37,14 +51,14 @@
         - '{{ playbook_dir }}/files/ssh/{{ iocage_jail.name }}/ssh_host*_key'
       loop_control:
         loop_var: sshkey
-      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
+      when: jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
     - name: initial permit root login
       lineinfile:
         line: 'PermitRootLogin without-password'
         regexp: '^PermitRootLogin'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/ssh/sshd_config'
-      when: iocage_jail.changed and jail.name not in iocage_jail.ansible_facts.iocage_templates
+      when: jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
     - name: enable sshd (and zfs)
       lineinfile:
@@ -52,16 +66,16 @@
         line: '{{ item }}'
       with_items:
         - 'sshd_enable="YES"'
-        - '{% if "properties" in jail and "jail_zfs" in jail.properties and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
+        - '{% if jail.properties.jail_zfs is defined and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
       notify: restart jail
-      when: jail.name not in iocage_jail.ansible_facts.iocage_templates
+      when: jail.name not in iocage_fact.ansible_facts.iocage_templates
   when: iocage_enable_ssh
 
 - name: copy fstab
   template:
     src: '{{ jail.fstab }}'
     dest: '/iocage/jails/{{ iocage_jail.name }}/fstab'
-  when: '"fstab" in jail and jail.fstab != "" and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+  when: '"fstab" in jail and jail.fstab != "" and jail.name not in iocage_fact.ansible_facts.iocage_templates'
   notify: restart jail
   register: jail_fstab
 
@@ -76,7 +90,7 @@
   file:
     state: directory
     dest: '{{ dir }}'
-  when: 'jail_fstab.changed == True and jail.name not in iocage_jail.ansible_facts.iocage_templates'
+  when: 'jail_fstab.changed == True and jail.name not in iocage_fact.ansible_facts.iocage_templates'
   with_items: '{{ mntdirs.stdout_lines | default([]) }}'
   loop_control:
     loop_var: dir
@@ -86,7 +100,7 @@
   iocage:
     name: '{{ jail.name }}'
     state: started
-  when: 'jail.name not in iocage_jail.ansible_facts.iocage_templates'
+  when: 'jail.name not in iocage_fact.ansible_facts.iocage_templates'
 
 - name: check for pkg
   stat:
@@ -95,7 +109,7 @@
 
 - name: install python in jail
   shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python python2 python3 rsync'
-  when: not pkg_installed.stat.exists and jail.name not in iocage_jail.ansible_facts.iocage_templates
+  when: not pkg_installed.stat.exists and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
 - name: add jail to inventory
   add_host:
@@ -126,9 +140,9 @@
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iojail.fact'
     content: |
-      {"host":"{{ inventory_hostname }}"}
+      {"host":"{{ inventory_hostname }}","properties":"{{ jail.properties }}"}
   delegate_to: '{{ jail.name }}'
-  when: iocage_jail.changed
+  when: jail_changed
 
 - name: 'import role criecm.common'
   import_role:
