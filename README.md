@@ -41,6 +41,9 @@ with host's `inventory_hostname` and an `iojails` group
 * `jail_init_role ()`
   Role to be imported to initialize new jail
 
+* `iocage_use_pkg (True)`
+  Will install iocage from packages, or from git if False
+
 ### per-jail variables
 
 (in vars/jail.yml)

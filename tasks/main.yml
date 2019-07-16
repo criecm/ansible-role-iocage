@@ -8,9 +8,31 @@
 - name: iocage pkg
   pkgng:
     name: py36-iocage
-    state: present
+    state: '{% if iocage_use_pkg %}present{% else %}absent{% endif %}'
   tags: iocage,hostinit,pkg
   when: upgrade | default(False) or not ioc_installed
+
+- name: iocage code
+  block:
+    - name: git
+      git:
+        repo: https://github.com/iocage/iocage.git
+        dest: /root/iocage
+        force: '{{ upgrade | default(False) }}'
+      register: iogit
+    - name: pkgs
+      pkgng:
+        name:
+          - python36
+          - py36-cython
+          - py36-pip
+        state: present
+    - name: install
+      command: make uninstall install
+      args:
+        chdir: /root/iocage
+        creates: /usr/local/bin/iocage
+  when: not iocage_use_pkg
 
 - name: mount fdescfs
   mount:
