@@ -19,7 +19,7 @@
     properties: '{{ jail.properties }}'
     state: set
   register: iocage_set
-  when: newprops | count() > 0 and not iocage_create.changed
+  when: not iocage_create.changed
 
 - name: iocage_jail fact
   set_fact:

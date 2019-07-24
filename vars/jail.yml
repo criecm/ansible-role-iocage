@@ -8,7 +8,7 @@ jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.
 
 jail_search_domains: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips.split(" ") | ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
 
-jail_resolver: 'domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) }}'
+jail_resolver: 'domain {{ jail_domain }};{{ jail_resolvers }}search {{ jail_search_domains | default(jail_domain) | regex_replace(" *$","") }}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'
 
 jailprops:
@@ -16,7 +16,7 @@ jailprops:
   ip6_addr: '{% if "ip6" in onejail %}{{ onejail.ip6 }}{% else %}none{% endif %}'
   boot: '{% if "boot" in onejail %}{{ onejail.boot }}{% else %}on{% endif %}'
   host_hostname: '{{ onejail.hostname }}'
-  resolver: '{% if "resolver" in onejail and onejail.resolver != "auto" and onejail.resolver != "" %}{{ onejail.resolver }}{% else %}{{ jail_resolver }}{% endif %}'
+  resolver: '{% if "resolver" in onejail and onejail.resolver is not match("auto") and onejail.resolver != "" %}{{ onejail.resolver | regex_replace(" *$","") }}{% else %}{{ jail_resolver | regex_replace(" *$","") }}{% endif %}'
   template: 'no'
 
 jproperties:
@@ -24,7 +24,7 @@ jproperties:
 
 ojailprops: '{{ criecm_iocage.jails[onejail.name] | default("{}") }}'
 
-newprops: '{% for p in jproperties.properties %}{% if p in ojailprops and jproperties.properties.p is match(ojailprops.p) %}{% set np.p=jproperties.properties.p %}{% endif %}{% endfor %}{{ np | default("{}") }}'
+newprops: '{% set np={} %}{% for p in jproperties.properties %}{% if p in ojailprops and jproperties.properties.p is match(ojailprops.p) %}{% set np.p=jproperties.properties.p %}{% endif %}{% endfor %}{{ np | default("{}") }}'
 
 jail_defaults:
   name: ''
