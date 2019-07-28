@@ -1,12 +1,14 @@
 # iocage
 
-iocage host install/config and jails installation
+iocage host install/config and jails installation *on FreeBSD*
+(this won't work as-is on FreeNAS, patches welcome ;)
 
-Uses the `iocage` ansible module from https://github.com/fractalcells/ansible-iocage
+Uses the `iocage` ansible module from
+https://github.com/fractalcells/ansible-iocage
 (embedded in the role's library/)
 
-Adds created hosts in inventory (`add_host`) with a `iocage_host` variable filled
-with host's `inventory_hostname` and an `iojails` group
+Adds created hosts in inventory (`add_host`) with a `iocage_host` variable
+filled with host's `inventory_hostname` and an `iojails` group
 
 ## Requirements
 
