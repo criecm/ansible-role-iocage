@@ -5,6 +5,29 @@
   debug:
     var: jail
 
+- name: check fstab
+  template:
+    src: '{{ jail.fstab }}'
+    dest: '/iocage/jails/{{ jail.name }}/fstab'
+  when: '"fstab" in jail and jail.fstab != "" and jail.name not in iocage_fact.ansible_facts.iocage_templates'
+  check_mode: True
+  register: jail_fstab
+
+- name: stop jail to change fstab
+  block:
+    - name: stop jail
+      iocage:
+        name: '{{ jail.name }}'
+        state: stopped
+    - name: copy fstab
+      template:
+        src: '{{ jail.fstab }}'
+        dest: '/iocage/jails/{{ jail.name }}/fstab'
+      when: jail_fstab.changed | default(False)
+      notify: restart jail
+      register: jail_fstab
+  when: jail_fstab.changed | default(False) and jail.name in iocage_fact.ansible_facts.iocage_jails
+
 - name: create jail
   iocage: 
     name: '{{ jail.name }}'
@@ -26,7 +49,8 @@
     iocage_jail: '{% if iocage_create.changed %}{{ iocage_create.ansible_facts.iocage_jails[jail.name] }}{% elif iocage_set.changed %}{{ iocage_set.ansible_facts.iocage_jails[jail.name] }}{% else %}{{ iocage_fact.ansible_facts.iocage_jails[jail.name] }}{% endif %}'
     jail_changed: '{% if iocage_create.changed or iocage_set.changed %}True{% else %}False{% endif %}'
 
-- block:
+- name: ssh config
+  block:
     - name: mkdir .ssh
       file:
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/root/.ssh'
@@ -59,25 +83,17 @@
         regexp: '^PermitRootLogin'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/ssh/sshd_config'
       when: jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
-
-    - name: enable sshd (and zfs)
-      lineinfile:
-        dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/rc.conf'
-        line: '{{ item }}'
-      with_items:
-        - 'sshd_enable="YES"'
-        - '{% if jail.properties.jail_zfs is defined and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
-      notify: restart jail
-      when: jail.name not in iocage_fact.ansible_facts.iocage_templates
   when: iocage_enable_ssh
 
-- name: copy fstab
-  template:
-    src: '{{ jail.fstab }}'
-    dest: '/iocage/jails/{{ iocage_jail.name }}/fstab'
-  when: '"fstab" in jail and jail.fstab != "" and jail.name not in iocage_fact.ansible_facts.iocage_templates'
+- name: enable base services
+  lineinfile:
+    dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/rc.conf'
+    line: '{{ item }}'
+  with_items:
+    - '{% if iocage_enable_ssh | default(True) %}sshd_enable="YES"{% endif %}'
+    - '{% if jail.properties.jail_zfs is defined and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
   notify: restart jail
-  register: jail_fstab
+  when: jail.name not in iocage_fact.ansible_facts.iocage_templates
 
 - name: get fstab mountpoints
   shell: "awk '{print $2}' /iocage/jails/{{ iocage_jail.name }}/fstab"
