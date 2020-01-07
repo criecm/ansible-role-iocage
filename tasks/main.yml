@@ -7,7 +7,7 @@
 
 - name: iocage pkg
   pkgng:
-    name: py36-iocage
+    name: '{{ py_pkg_prefix }}-iocage'
     state: '{% if iocage_use_pkg %}present{% else %}absent{% endif %}'
   tags: iocage,hostinit,pkg
   when: upgrade | default(False) or not ioc_installed
@@ -23,9 +23,9 @@
     - name: pkgs
       pkgng:
         name:
-          - python36
-          - py36-cython
-          - py36-pip
+          - python
+          - '{{ py_pkg_prefix }}-cython'
+          - '{{ py_pkg_prefix }}-pip'
         state: present
     - name: install
       command: make uninstall install
