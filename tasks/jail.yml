@@ -89,7 +89,7 @@
   when: jail.name not in iocage_fact.ansible_facts.iocage_templates
 
 - name: get fstab mountpoints
-  shell: "awk '{print $2}' /iocage/jails/{{ iocage_jail.name }}/fstab"
+  shell: "awk '/^[^#]/{print $2}' /iocage/jails/{{ iocage_jail.name }}/fstab"
   register: mntdirs
   changed_when: False
   failed_when: False
