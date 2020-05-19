@@ -156,8 +156,7 @@
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iojail.fact'
     content: >
-      {"host":"{{ inventory_hostname | to_json }}","properties":"{{ jail.properties | default({}) | to_json }}"}
-  when: jail_changed
+      {"host":{{ inventory_hostname | to_json }},"properties":{{ jail.properties | default({}) | to_json }}}
   delegate_to: '{{ jail.name }}'
 
 - name: 'import role {{ jail_init_role }}'

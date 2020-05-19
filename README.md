@@ -31,8 +31,8 @@ filled with host's `inventory_hostname` and an `iojails` group
 * `myjail ('')`
    if defined, run only this jail from `jail_list` (none if not found)
 
-*  `iocage_components (none)` - comma-separated list
-   if defined, only install these components (eg: 'base.txz,doc.txz')
+*  `iocage_components (none)` - list
+   if defined, only install these components
 
 *  `iocage_enable_ssh (True)`
    Enable ssh in new jails

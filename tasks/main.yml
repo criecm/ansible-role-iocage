@@ -147,22 +147,12 @@
   file:
     path: '{{ etcprefix }}/etc/ansible/facts.d'
     state: directory
-- name: version links
-  file:
-    path: '{{ etcprefix }}/etc/ansible-{{ item }}'
-    src: '{{ etcprefix }}/etc/ansible'
-    state: link
-  with_items:
-    - 27
-    - 36
-  when: not ioc_installed
 
 - name: local fact
   copy:
     dest: '{{ etcprefix }}/etc/ansible/facts.d/iocage.fact'
     src: 'iocage_local.fact'
     mode: '0755'
-  when: not ioc_installed
 
 - name: iocage_fact
   iocage:
