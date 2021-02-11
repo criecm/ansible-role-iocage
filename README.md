@@ -31,6 +31,9 @@ filled with host's `inventory_hostname` and an `iojails` group
 * `myjail ('')`
    if defined, run only this jail from `jail_list` (none if not found)
 
+* `myjails([])`
+   same as myjail, but fore more than one :)
+
 *  `iocage_components (none)` - list
    if defined, only install these components
 

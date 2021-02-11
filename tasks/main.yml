@@ -113,6 +113,7 @@
     - 'accf_data_load="YES"'
   tags: iocage, hostinit
   when: not ioc_installed
+
 - name: enable racct/rctl
   lineinfile:
     dest: /boot/loader.conf
@@ -164,5 +165,7 @@
   loop_control:
     loop_var: onejail
   tags: iocage, jails
-  when: (myjail == "" and jail_list | count() > 0) or (myjail == onejail.name)
+  when: (myjail == onejail.name)
+        or onejail.name in myjails
+        or (myjail == "" and myjails | count() > 0 and jail_list | count() > 0)
 

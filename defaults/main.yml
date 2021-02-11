@@ -3,6 +3,7 @@ jail_list: []
 iocage_zpool: zroot
 iocage_fetch_args: ''
 myjail: ''
+myjails: []
 etcprefix: /usr/local
 iocage_enable_ssh: True
 iocage_release: ''
