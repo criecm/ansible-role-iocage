@@ -43,6 +43,20 @@
     state: set
   register: iocage_set
   when: not iocage_create.changed
+  ignore_errors: True
+
+- name: stop jail to set properties
+  block:
+    - name: stop jail
+      iocage:
+        name: '{{ jail.name }}'
+        state: stopped
+    - name: set props
+      iocage:
+        name: '{{ jail.name }}'
+        properties: '{{ jail.properties }}'
+        state: set
+  when: iocage_set.failed and iocage_set.msg is search("Please stop it first!")
 
 - name: iocage_jail fact
   set_fact:
@@ -73,7 +87,7 @@
         loop_var: sshkey
     - name: initial permit root login
       lineinfile:
-        line: 'PermitRootLogin without-password'
+        line: 'PermitRootLogin prohibit-password'
         regexp: '^PermitRootLogin'
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/ssh/sshd_config'
   when: iocage_enable_ssh and jail_changed and jail.name not in iocage_fact.ansible_facts.iocage_templates
