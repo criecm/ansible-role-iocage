@@ -56,7 +56,7 @@
         name: '{{ jail.name }}'
         properties: '{{ jail.properties }}'
         state: set
-  when: iocage_set.failed and iocage_set.msg is search("Please stop it first!")
+  when: not iocage_create.changed and iocage_set.failed and iocage_set.msg is search("Please stop it first!")
 
 - name: iocage_jail fact
   set_fact:
