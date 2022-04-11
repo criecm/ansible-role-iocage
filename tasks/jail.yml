@@ -142,14 +142,10 @@
     iocage_host: '{{ inventory_hostname }}'
     ansible_ssh_host: 'ioc-{{ jail.name }}@{{ inventory_hostname }}'
     ansible_connection: sshjail
-#  when: jail.name not in hostvars.keys()
+  when: jail.name not in hostvars.keys()
 
 - name: start sshd
-  service:
-    name: sshd
-    state: started
-    enabled: yes
-  delegate_to: '{{ jail.name }}'
+  shell: 'iocage exec {{ jail.name }} pgrep sshd || iocage exec {{ jail.name }} service sshd start'
   when: iocage_enable_ssh
 
 - name: 'add host fact to jail {{ jail.name }}'
