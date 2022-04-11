@@ -1,13 +1,16 @@
 ---
-jail_ip6s: '{{ onejail.ip6 | default("") | regex_replace(",?([^\|]+\|)"," ") }}'
-jail_ips: '{{ jail_ip6s }}{{ onejail.ip4 | default("") | regex_replace(",?([a-z0-9\.]+\|)"," ") }}'
+jail_ip6s: '{{ onejail.ip6 | default("") | regex_replace(",?([^\|]+\|)"," ") | split(" ") }}'
+jail_ip4s: '{{ onejail.ip4 | default("") | regex_replace(",?([a-z0-9\.]+\|)"," ") | split(" ") }}'
+jail_ips: '{{ jail_ip6s + jail_ip4s }}'
 
 jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.]+\.","") }}'
 
-jail_search_domains: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips.split(" ") | ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
+jail_search_domains_str: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips | ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
+jail_search_domains: '{{ jail_search_domains_str | split(" ") | unique | join(" ") }}'
 
-jail_auto_nameservers: '{% for ns in resolvers %}{% for i in jail_ips.split(" ") %}{% if i | ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}'
-jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | default(jail_domain) | regex_replace(" *$","") }};{{ jail_auto_nameservers }}'
+jail_auto_nameservers: '{% for ns in resolvers %}{% for i in jail_ips %}{% if i | ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}'
+
+jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | default(jail_domain) }};{{ jail_auto_nameservers }}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'
 
 jailprops:
