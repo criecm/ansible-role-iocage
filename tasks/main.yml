@@ -167,5 +167,5 @@
   tags: iocage, jails
   when: (myjail == onejail.name)
         or onejail.name in myjails
-        or (myjail == "" and myjails | count() > 0 and jail_list | count() > 0)
+        or (myjail == "" and myjails | count() == 0 and jail_list | count() > 0)
 
