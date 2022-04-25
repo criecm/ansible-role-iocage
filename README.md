@@ -10,10 +10,6 @@ https://github.com/fractalcells/ansible-iocage
 Adds created hosts in inventory (`add_host`) with a `iocage_host` variable
 filled with host's `inventory_hostname` and an `iojails` group
 
-## Requirements
-
-* [sshjail connection plugin](https://github.com/austinhyde/ansible-sshjail)
-
 ## Role variables
 
 (in defaults/main.yml)

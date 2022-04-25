@@ -140,8 +140,6 @@
     hostname: '{{ jail.hostname }}'
     groups: [ iojails ]
     iocage_host: '{{ inventory_hostname }}'
-    ansible_ssh_host: 'ioc-{{ jail.name }}@{{ inventory_hostname }}'
-    ansible_connection: sshjail
   when: jail.name not in hostvars.keys()
 
 - name: start sshd
