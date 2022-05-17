@@ -137,7 +137,7 @@
 - name: add jail to inventory
   add_host:
     name: '{{ jail.name }}'
-    hostname: '{{ jail.hostname }}'
+    ansible_host: '{{ jail.hostname }}'
     groups: [ iojails ]
     iocage_host: '{{ inventory_hostname }}'
   when: jail.name not in hostvars.keys()
