@@ -8,7 +8,11 @@ jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.
 jail_search_domains_str: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips | ansible.utils.ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
 jail_search_domains: '{{ jail_search_domains_str | split(" ") | unique | join(" ") }}'
 
-jail_auto_nameservers: '{% for ns in resolvers %}{% for i in jail_ips %}{% if i | ansible.utils.ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}'
+jail_auto_nameservers: '{% if onejail.ip4 | default("") == "" and dns64_resolvers | default([]) | count > 0 %}
+{% for ns in dns64_resolvers %}nameserver {{ ns }};{% endfor %}
+{% else %}
+{% for ns in resolvers %}{% for i in jail_ips %}{% if i | ansible.utils.ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}
+{% endif %}'
 
 jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | default(jail_domain) }};{{ jail_auto_nameservers }}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'

@@ -73,6 +73,7 @@ filled with host's `inventory_hostname` and an `iojails` group
 `resolver` will be auto-populated according to variables `search_domains` and `resolvers`
 (here we have them in `group_vars/all.yml`). This will select search domain(s) and resolvers
  depending on jail's IP addresses.
+if `dns64_resolvers` is a list and jail has no ip4 addresses, those are the resolvers used.
 
 ```
 # if ip is in 'network', 'domain' is added
