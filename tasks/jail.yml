@@ -32,7 +32,7 @@
   iocage: 
     name: '{{ jail.name }}'
     properties: '{{ jail.properties }}'
-    state: present
+    state: '{{ iocage_jail_type }}'
   register: iocage_create
   when: 'not jail.name in iocage_fact.ansible_facts.iocage_jails'
 

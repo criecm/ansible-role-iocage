@@ -45,6 +45,9 @@ filled with host's `inventory_hostname` and an `iojails` group
 * `iocage_use_pkg (True)`
   Will install iocage from packages, or from git if False
 
+* `iocage_jail_type ("thickjail")`
+  use "default" to create zfs clones of release
+
 ### per-jail variables
 
 (in vars/jail.yml)
