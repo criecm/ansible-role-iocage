@@ -61,7 +61,7 @@
 - name: iocage_jail fact
   set_fact:
     iocage_jail: '{% if iocage_create.changed %}{{ iocage_create.ansible_facts.iocage_jails[jail.name] }}{% elif iocage_set.changed %}{{ iocage_set.ansible_facts.iocage_jails[jail.name] }}{% else %}{{ iocage_fact.ansible_facts.iocage_jails[jail.name] }}{% endif %}'
-    jail_changed: '{% if iocage_create.changed or iocage_set.changed %}True{% else %}False{% endif %}'
+    jail_changed: '{% if iocage_create.changed or iocage_set.changed or force_changed_jail | default(False) %}True{% else %}False{% endif %}'
 
 - name: ssh config
   block:
@@ -142,8 +142,8 @@
     iocage_host: '{{ inventory_hostname }}'
   when: jail.name not in hostvars.keys()
 
-- name: start sshd
-  shell: 'iocage exec {{ jail.name }} pgrep sshd || iocage exec {{ jail.name }} service sshd start'
+- name: (re)start sshd
+  shell: 'iocage exec {{ jail.name }} pgrep sshd && iocage exec {{ jail.name }} service sshd restart || iocage exec {{ jail.name }} service sshd start'
   when: iocage_enable_ssh
 
 - name: 'add host fact to jail {{ jail.name }}'
