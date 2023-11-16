@@ -569,7 +569,10 @@ def main():
                 raise Exception("Release not recognised: {}".format(out))
 
     # need existing jail
-    if p["state"] in [ "started", "stopped", "restarted", "set", "exec", "pkg", "exists" ]:
+    if p["state"] == "set" and name != "default":
+        if name not in facts["iocage_jails"] and name not in facts["iocage_templates"]:
+            module.fail_json(msg="Jail '{0}' doesn't exist".format(name))
+    if p["state"] in [ "started", "stopped", "restarted", "exec", "pkg", "exists" ]:
         if name not in facts["iocage_jails"] and name not in facts["iocage_templates"]:
             module.fail_json(msg="Jail '{0}' doesn't exist".format(name))
 
