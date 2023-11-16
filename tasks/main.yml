@@ -121,6 +121,14 @@
   tags: iocage, hostinit
   when: not ioc_installed
 
+- name: set default jail properties
+  iocage:
+    name: 'default'
+    properties: '{{ default_properties }}'
+    state: set
+  when: default_properties | default(False)
+  ignore_errors: True
+
 #- name: get iocage current jails
 #  shell: "/usr/local/sbin/iocage list |grep '^[0-9]' | awk '{print $5}'"
 #  register: iocage_jails
@@ -143,7 +151,6 @@
 #    state: basejail
 #  tags: iocage, hostinit
 #  when: 'jail_list | count() > 0'
-
 - name: '{{ etcprefix }}/etc/ansible/facts.d'
   file:
     path: '{{ etcprefix }}/etc/ansible/facts.d'
