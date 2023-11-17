@@ -11,3 +11,9 @@ jail_init_role: ''
 iocage_use_pkg: True
 py_pkg_prefix: '{{ ansible_python_version | regex_replace("^([1-9]*)\.([0-9]*)\..*$","py\1\2") }}'
 iocage_jail_type: thickjail
+default_resolver_ipv4:
+  - '208.67.222.222'
+  - '8.8.4.4'
+default_resolver_ipv6:
+  - '2620:119:35::35'
+  - '2001:4860:4860::8844'

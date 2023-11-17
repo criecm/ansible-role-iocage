@@ -5,12 +5,12 @@ jail_ips: '{{ jail_ip6s + jail_ip4s | reject("match","^ *$") | list }}'
 
 jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.]+\.","") }}'
 
-jail_search_domains_str: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips | ansible.utils.ipaddr(sd.network) %}{{ sd.domain }} {% endif %}{% endfor %}{% endif %}'
+jail_search_domains_str: '{% if search_domains %}{% for sd in search_domains %}{% if jail_ips | ansible.utils.ipaddr(sd.network) %}{{ sd.domain }}{% if not loop.last %} {% endif %}{% endif %}{% endfor %}{% endif %}'
 jail_search_domains: '{{ jail_search_domains_str | split(" ") | unique | join(" ") }}'
 
 jail_auto_nameservers: '{% if onejail.ip4 | default("") == "" and dns64_resolvers | default([]) | count > 0 %}{% for ns in dns64_resolvers %}nameserver {{ ns }};{% endfor %}{% else %}{% for ns in resolvers %}{% for i in jail_ips %}{% if i | ansible.utils.ipaddr(ns.network) %}nameserver {{ ns.ip }};{% endif %}{% endfor %}{% endfor %}{% endif %}'
 
-jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | default(jail_domain) }};{{ jail_auto_nameservers }}'
+jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | default(jail_domain) }};{% if jail_auto_nameservers != "" %}{{ jail_auto_nameservers }}{% else %}{% if onejail.ip4 | default("") != "" %}{% for ns in default_resolver_ipv4 %}nameserver {{ ns }};{% endfor %}{% endif %}{% if onejail.ip6 | default("") != "" %}{% for ns in default_resolver_ipv6 %}nameserver {{ ns }};{% endfor %}{% endif %}{% endif %}'
 #search {{ onejail.search_domains | default(jail_search_domains) }};'
 
 jailprops:
