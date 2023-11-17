@@ -3,7 +3,7 @@
 
 - name: show jail var
   debug:
-    var: jail
+    msg: '{{ jail }}'
 
 - name: check fstab
   template:
@@ -100,7 +100,7 @@
     - '{% if jail.properties.jail_zfs is defined and jail.properties.jail_zfs | bool %}zfs_enable="YES"{% endif %}'
     - '{% if iocage_enable_ssh | bool %}sshd_enable="YES"{% endif %}'
   notify: restart jail
-  when: jail.name not in iocage_fact.ansible_facts.iocage_templates
+  when: item != '' and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
 - name: get fstab mountpoints
   shell: "awk '/^[^#]/{print $2}' /iocage/jails/{{ iocage_jail.name }}/fstab"
