@@ -5,6 +5,34 @@
     ioc_zpool: '{% if "iocage" in ansible_facts.ansible_local and "zpool" in ansible_facts.ansible_local.iocage %}{{ ansible_facts.ansible_local.iocage.zpool }}{% else %}{{ iocage_zpool }}{% endif %}'
   tags: iocage,vars
 
+- name: uninstall source code
+  block:
+    - name: check source
+      stat:
+        path: /root/iocage
+      register: iocagesourcedir
+    - name: uninstall
+      command: make uninstall
+      args:
+        chdir: /root/iocage
+      ignore_errors: True
+      register: ioc_uninstall
+      when: iocagesourcedir.stat.exists and ioc_installed
+    - name: fix old pkg if present
+      pkgng:
+        name: '{{ py_pkg_prefix }}-iocage'
+        state: absent
+      when: ioc_uninstall.rc | default(1) == 0
+    - name: remove source
+      file:
+        path: /root/iocage
+        state: absent
+    - name: set fact uninstalled
+      set_fact:
+        ioc_installed: False
+      when: iocagesourcedir.stat.exists
+  when: ioc_installed and iocage_use_pkg
+
 - name: iocage pkg
   pkgng:
     name: '{{ py_pkg_prefix }}-iocage'
@@ -12,11 +40,11 @@
   tags: iocage,hostinit,pkg
   when: upgrade | default(False) or not ioc_installed
 
-- name: iocage code
+- name: iocage from source
   block:
     - name: git
       git:
-        repo: https://github.com/iocage/iocage.git
+        repo: https://github.com/freebsd/iocage.git
         dest: /root/iocage
         force: '{{ upgrade | default(False) }}'
       register: iogit
