@@ -48,6 +48,9 @@ filled with host's `inventory_hostname` and an `iojails` group
 * `iocage_jail_type ("thickjail")`
   use "default" to create zfs clones of release
 
+* `iocage_upgrade (do_upgrade | default(False))`
+  Upgrade iocage version to latest available
+
 ### per-jail variables
 
 (in vars/jail.yml)

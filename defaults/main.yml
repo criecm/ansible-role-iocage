@@ -6,6 +6,7 @@ myjail: ''
 myjails: []
 etcprefix: /usr/local
 iocage_enable_ssh: True
+iocage_upgrade: '{{ do_upgrade | default(False) }}'
 iocage_release: ''
 jail_init_role: ''
 iocage_use_pkg: True
