@@ -156,18 +156,15 @@ def _get_iocage_facts(module, iocage_path, argument="all", name=None):
                 if _jid == "None":
                     _jid = "-"
                 if _name != "":
-                    _properties = _jail_get_properties(module, iocage_path, _name)
-                    _jails[_name] = { "jid": _jid, "name": _name, "state": _state, "properties": _properties }
+                    if name == None or name == _name:
+                        _properties = _jail_get_properties(module, iocage_path, _name)
+                        _jails[_name] = { "jid": _jid, "name": _name, "state": _state, "properties": _properties }
+                    if name == _name:
+                        return _jails[_name]
             else:
                 module.fail_json(msg="_get_iocage_facts():\nUnreadable stdout line from cmd '{0}': '{1}'".format(cmd,l))
     except:
         module.fail_json(msg="unable to parse {0}".format(state))
-
-    if name:
-        if name in _jails:
-            return _jails[name]
-        else:
-            return {}
 
     return _jails
 
@@ -393,7 +390,7 @@ def jail_set(module, iocage_path, name, properties={}):
     if len(_props_to_be_changed) > 0:
         need_restart = False
         for p in _props_to_be_changed.keys():
-            if p in ['ip4_addr','ip6_addr','template','interfaces','vnet','host_hostname']:
+            if p in ['ip4_addr','ip6_addr','template','interfaces','vnet','host_hostname','allow_nfsd','enforce_statfs']:
                 need_restart = _jail_started(module, iocage_path, name)
 
         cmd = '{0} set {1} {2}'.format(iocage_path, _props_to_str(_props_to_be_changed), name)
