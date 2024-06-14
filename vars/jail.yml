@@ -1,6 +1,6 @@
 ---
-jail_ip6s: '{{ onejail.ip6 | default("") | regex_replace(",?([^\|]+\|)"," ") | split(" ") | reject("") | list }}'
-jail_ip4s: '{{ onejail.ip4 | default("") | regex_replace(",?([a-z0-9\.]+\|)"," ") | split(" ") | reject("") | list }}'
+jail_ip6s: '{{ onejail.ip6 | default("") | regex_replace(",?([^\|]+\|)"," ") | split(" ") | reject("match","$") | list }}'
+jail_ip4s: '{{ onejail.ip4 | default("") | regex_replace(",?([a-z0-9\.]+\|)"," ") | split(" ") | reject("match","$") | list }}'
 jail_ips: '{{ jail_ip6s + jail_ip4s | reject("match","^ *$") | list }}'
 
 jail_domain: '{{ onejail.hostname | default("host.local") | regex_replace("^[^\.]+\.","") }}'
