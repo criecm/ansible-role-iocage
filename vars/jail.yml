@@ -15,9 +15,9 @@ jail_auto_resolver: 'domain {{ jail_domain }};search {{ jail_search_domains | de
 
 jailprops:
   ip4_addr: '{% if "ip4" in onejail %}{{ onejail.ip4 }}{% else %}none{% endif %}'
-  ip4: '{% if jail_ip4s | count > 0 %}new{% else %}disable{% endif %}'
+#  ip4: '{% if jail_ip4s | count > 0 %}new{% else %}disable{% endif %}'
   ip6_addr: '{% if "ip6" in onejail %}{{ onejail.ip6 }}{% else %}none{% endif %}'
-  ip6: '{% if jail_ip6s | count > 0 %}new{% else %}disable{% endif %}'
+#  ip6: '{% if jail_ip6s | count > 0 %}new{% else %}disable{% endif %}'
   boot: '{% if "boot" in onejail %}{{ onejail.boot }}{% else %}on{% endif %}'
   host_hostname: '{{ onejail.hostname }}'
   resolver: '{% if "resolver" in onejail and onejail.resolver is not match("auto") and onejail.resolver != "" %}{{ onejail.resolver | regex_replace(" *$","") }}{% else %}{{ jail_auto_resolver }}{% endif %}'
