@@ -117,7 +117,7 @@
       register: jailmounts
     - name: check for nfs mounts
       set_fact:
-        jail_has_nfs_mounts: '{% if jailmounts["content"] | b64decode is regex("^[a-z][-a-z0-9\.]+:/.*[\t ]nfs",multiline=True) %}True{% else %}False{% endif %}'
+        jail_has_nfs_mounts: '{% if jailmounts["content"] | b64decode is regex("[\t ]nfs",multiline=True) %}True{% else %}False{% endif %}'
     - name: activate nfsuserd
       lineinfile:
         dest: '/iocage/jails/{{ iocage_jail.name }}/root/etc/rc.conf'
@@ -127,6 +127,7 @@
         - 'nfsuserd_enable="YES"'
         - 'nfsuserd_flags="-domain {{ idmap_domain }}"'
       notify: restart jail
+      when: jail_has_nfs_mounts
     - name: jail props needed
       iocage:
         name: '{{ jail.name }}'
@@ -135,6 +136,7 @@
           enforce_statfs: '1'
         state: set
       notify: restart jail
+      when: jail_has_nfs_mounts
   when: idmap_domain | default(False) and iocage_fact.ansible_facts.iocage_jails[jail.name].properties.release | regex_replace("-[A-Z].*$","") is version_compare("13.3",">=")
 
 - name: mkdir fstab mountpoints
