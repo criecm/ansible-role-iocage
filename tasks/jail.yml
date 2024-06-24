@@ -137,7 +137,8 @@
         state: set
       notify: restart jail
       when: jail_has_nfs_mounts
-  when: idmap_domain | default(False) and iocage_fact.ansible_facts.iocage_jails[jail.name].properties.release | regex_replace("-[A-Z].*$","") is version_compare("13.3",">=")
+  when: idmap_domain | default(False) and
+         iocage_fact.ansible_facts.iocage_jails[jail.name].properties.release | default(iocage_release) | regex_replace("-[A-Z].*$","") is version_compare("13.3",">=")
 
 - name: mkdir fstab mountpoints
   file:
