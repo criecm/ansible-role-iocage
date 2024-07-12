@@ -62,6 +62,7 @@
   set_fact:
     iocage_jail: '{% if iocage_create.changed %}{{ iocage_create.ansible_facts.iocage_jails[jail.name] }}{% elif iocage_set.changed %}{{ iocage_set.ansible_facts.iocage_jails[jail.name] }}{% else %}{{ iocage_fact.ansible_facts.iocage_jails[jail.name] }}{% endif %}'
     jail_changed: '{% if iocage_create.changed or iocage_set.changed or force_changed_jail | default(False) %}True{% else %}False{% endif %}'
+#  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: ssh config
   block:
