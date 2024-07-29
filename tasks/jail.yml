@@ -163,7 +163,7 @@
   register: pkg_installed
 
 - name: install python in jail
-  shell: 'env ASSUME_ALWAYS_YES=yes pkg -c /iocage/jails/{{ iocage_jail.name }}/root install -y pkg python python3 rsync'
+  shell: 'env ASSUME_ALWAYS_YES=yes pkg -j ioc-{{ iocage_jail.name }} install -y pkg python python3 rsync'
   when: not pkg_installed.stat.exists and jail.name not in iocage_fact.ansible_facts.iocage_templates
 
 - name: add jail to inventory

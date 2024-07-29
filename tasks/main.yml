@@ -106,7 +106,7 @@
     iocage_release: '{{ releasecmd.stdout }}'
   check_mode: False
   tags: iocage, hostinit
-  when: '"stdout" in releasecmd and not iocage_release'
+  when: '"stdout" in releasecmd'
 
 - name: get release state
   stat:
