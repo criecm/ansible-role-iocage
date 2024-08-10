@@ -99,21 +99,20 @@
   changed_when: False
   check_mode: False
   tags: iocage, hostinit
-  when: not ioc_installed and not iocage_release
+  when: not iocage_release
 
 - name: set release fact
   set_fact:
     iocage_release: '{{ releasecmd.stdout }}'
   check_mode: False
   tags: iocage, hostinit
-  when: '"stdout" in releasecmd'
+  when: not iocage_release
 
 - name: get release state
   stat:
     path: '/iocage/releases/{{ iocage_release }}/root/bin/freebsd-version'
   register: relfile
   tags: iocage, hostinit
-  when: not ioc_installed
 
 - name: initialize iocage
   iocage:
@@ -123,7 +122,7 @@
     components: '{{ iocage_components | default(omit) }}'
   register: ioc_fetch
   tags: iocage, hostinit
-  when: not ioc_installed and not relfile.stat.exists
+  when: not relfile.stat.exists
 
 - name: Enable iocage service
   service:
